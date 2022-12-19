@@ -5,7 +5,7 @@ namespace SecretPepeBot;
 
 public class SantaService : ISantaService
 {
-    private const string DataFile = "data.json";
+    public const string DataFile = "data.json";
     private readonly BotOptions _options;
     private readonly List<Participant> _participants;
 

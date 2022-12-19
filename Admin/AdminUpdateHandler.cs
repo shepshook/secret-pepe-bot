@@ -46,12 +46,13 @@ public class AdminUpdateHandler : ITelegramUpdateHandler
             await SendUnknownMessageResponse(message, ct);
             return;
         }
-        
+
         var sentMessage = await (messageText.Split(' ')[0] switch
         {
             "/start" => SendStartMessage(message, ct),
             "/list" => SendListResponse(message, ct),
             "/generate" => SendGenerateResponse(message, ct),
+            "/data" => SendDataResponse(message, ct),
             _ => SendUnknownMessageResponse(message, ct)
         });
     }
@@ -98,6 +99,13 @@ public class AdminUpdateHandler : ITelegramUpdateHandler
 
         const string successMessage = "Pairs generated successfully!";
         return await _adminClient.SendTextMessageAsync(message.Chat.Id, successMessage, cancellationToken: ct);
+    }
+
+    private Task<Message> SendDataResponse(Message message, CancellationToken ct)
+    {
+        var file = System.IO.File.OpenRead(SantaService.DataFile);
+
+        return _adminClient.SendDocumentAsync(message.Chat.Id, file, cancellationToken: ct);
     }
 
     private Task<Message> SendUnknownMessageResponse(Message message, CancellationToken ct)
