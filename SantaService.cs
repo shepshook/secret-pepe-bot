@@ -77,6 +77,20 @@ public class SantaService : ISantaService
         return Task.FromResult<Participant?>(_participants.SingleOrDefault(x => x.ChatId == chatId));
     }
 
+    public async Task<bool> RemoveParticipant(string userId, CancellationToken ct = default)
+    {
+        var participant = _participants.SingleOrDefault(x => x.UserId == userId);
+
+        if (participant != null)
+        {
+            _participants.Remove(participant);
+            await SaveParticipants(ct);
+            return true;
+        }
+
+        return false;
+    }
+
     public Task UpdateParticipant(Participant participant, CancellationToken ct = default)
     {
         var oldParticipant = _participants.Single(x => x.ChatId == participant.ChatId);

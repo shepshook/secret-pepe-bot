@@ -4,6 +4,7 @@ using SecretPepeBot.Admin.Abstractions;
 using SecretPepeBot.Client.Abstractions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace SecretPepeBot.Admin;
 
@@ -52,6 +53,7 @@ public class AdminUpdateHandler : ITelegramUpdateHandler
             "/start" => SendStartMessage(message, ct),
             "/list" => SendListResponse(message, ct),
             "/generate" => SendGenerateResponse(message, ct),
+            "/kick" => SendKickResponse(message, ct),
             "/data" => SendDataResponse(message, ct),
             _ => SendUnknownMessageResponse(message, ct)
         });
@@ -99,6 +101,18 @@ public class AdminUpdateHandler : ITelegramUpdateHandler
 
         const string successMessage = "Pairs generated successfully!";
         return await _adminClient.SendTextMessageAsync(message.Chat.Id, successMessage, cancellationToken: ct);
+    }
+
+    private async Task<Message> SendKickResponse(Message message, CancellationToken ct)
+    {
+        var username = message.Text.Split(" ").Last();
+        var result = await _santaService.RemoveParticipant(username);
+
+        var successMessage = result
+            ? $"User {username} removed successfully."
+            : "User was not found.";
+
+        return await _adminClient.SendTextMessageAsync(message.Chat.Id, successMessage, replyMarkup: new ReplyKeyboardRemove(), cancellationToken: ct);
     }
 
     private Task<Message> SendDataResponse(Message message, CancellationToken ct)
